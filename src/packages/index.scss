@@ -1,0 +1,124 @@
+$namespace: 'yc';
+$--color-primary: #409EFF !default;
+$--color-success: #67C23A !default;
+$--color-warning: #E6A23C !default;
+$--color-danger: #F56C6C !default;
+$--color-info: #909399 !default;
+
+$--color-white: #FFFFFF !default;
+
+//   块（block）
+@mixin b($block) {
+    $B: $namespace + '-' + $block !global;
+    .#{$B} {
+        @content;
+    }
+}
+
+// 修饰符（modifier）
+@mixin m($modifier) {
+    $currentSelector: "";
+    @each $unit in $modifier {
+        $currentSelector: #{$currentSelector + & + "--" + $unit + ","};
+    }
+
+    @at-root {
+        #{$currentSelector} {
+            @content;
+        }
+    }
+}
+// 元素（element）
+@mixin e($element) {
+    $E: $element !global;
+    $selector: &;
+    $currentSelector: "";
+    @each $unit in $element {
+        $currentSelector: #{$currentSelector + "." + $B + "__" + $unit + ","};
+    }
+  
+    @if hitAllSpecialNestRule($selector) {
+        @at-root {
+            #{$selector} {
+                #{$currentSelector} {
+                    @content;
+                }
+            }
+        }
+    } @else {
+        @at-root {
+            #{$currentSelector} {
+                @content;
+            }
+        }
+    }
+}
+
+@include b(message) {
+    min-width: 380px;
+    padding: 15px 15px 15px 20px;
+    display: flex;
+    align-items: center;
+    position: fixed;
+    left: 50%;
+    top: 20px;
+    transform: translateX(-50%);
+    background-color: #edf2fc;
+    transition: opacity 0.3s, transform .4s, top 0.4s;
+
+    @include m(info) {
+        .yc-message__content {
+            color: $--color-info;
+        }
+    }
+
+    @include m(warning) {
+        background-color: mix($--color-white, $--color-warning, 90%);
+        border-color: mix($--color-white, $--color-warning, 80%);
+
+        .yc-message__content {
+            color: $--color-warning;
+        }
+    }
+
+    @include m(error) {
+        background-color: mix($--color-white, $--color-danger, 90%);
+        border-color: mix($--color-white, $--color-danger, 80%);
+
+        .yc-message__content {
+            color: $--color-danger;
+        }
+    }
+
+    @include m(success) {
+        background-color: mix($--color-white, $--color-success, 90%);
+        border-color: mix($--color-white, $--color-success, 80%);
+
+        .yc-message__content {
+            color: $--color-success;
+        }
+    }
+
+    @include e(icon) {
+        font-size: 20px;
+        margin-right: 10px;
+        @include m(success) {
+            color: $--color-success;
+        }
+        @include m(error) {
+            color: $--color-danger;
+        }
+        @include m(warning){
+            color:$--color-warning
+        }
+        @include m(info){
+            color:$--color-info
+        }
+    }
+}
+
+.yc-message-fade-enter,
+.yc-message-fade-leave-active {
+    opacity: 0;
+    transform: translate(-50%, -100%);
+}
